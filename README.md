@@ -1,11 +1,11 @@
 # Dining Review API
 
 ## Quick endpoint testing
-curl http://localhost:3001/users
+curl http://localhost:8080/users
 
-curl http://localhost:3001/restaurants
+curl http://localhost:8080/restaurants
 
-curl http://localhost:3001/dining-review
+curl http://localhost:8080/dining-review
 
 See further integrations tests under src/test/java/com/example/diningreview/tests
 ## H2 Database
