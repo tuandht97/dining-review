@@ -6,7 +6,11 @@ import org.springframework.data.repository.CrudRepository;
 import java.util.Optional;
 
 public interface RestaurantRepository extends CrudRepository<Restaurant, Long> {
-    boolean existsByPostcode(String postcode);
+    boolean existsByZipCode(String zipCode);
     boolean existsByName(String name);
-    Optional<Restaurant> findByPostcode(String postcode);
+    Optional<Restaurant> findByZipCode(String zipCode);
+
+    
 }
+
+

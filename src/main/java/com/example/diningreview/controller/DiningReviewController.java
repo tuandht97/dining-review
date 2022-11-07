@@ -2,6 +2,7 @@ package com.example.diningreview.controller;
 
 import com.example.diningreview.model.AdminReviewStatus;
 import com.example.diningreview.model.DiningReview;
+import com.example.diningreview.model.Restaurant;
 import com.example.diningreview.repositories.RestaurantRepository;
 import com.example.diningreview.repositories.ReviewRepository;
 import com.example.diningreview.repositories.UserRepository;
@@ -20,6 +21,12 @@ public class DiningReviewController {
     private RestaurantRepository restaurantRepository;
     @Autowired
     private UserRepository userRepository;
+    
+    @GetMapping("/dining-review")
+    public Iterable<DiningReview> getAllDiningReviews(){
+        return reviewRepository.findAll();
+
+    }
 
     @PostMapping("/dining-review")
     public DiningReview createNewDiningreview(@RequestBody DiningReview diningReview){
@@ -32,20 +39,9 @@ public class DiningReviewController {
         return reviewRepository.save(diningReview);
     }
 
-    @GetMapping("/dining-review")
-    public Iterable<DiningReview> getAllDiningReviews(){
-        return reviewRepository.findAll();
-
-    }
-
     @GetMapping("/dining-review/pending")
     public Iterable<DiningReview> getPendingReviews(){
         return reviewRepository.findByAdminReviewStatus(AdminReviewStatus.PENDING);
-    }
-
-    @GetMapping("/dining-review/accepted/{id}")
-    public Iterable<DiningReview> getAcceptedReviewByRestaurantId(@PathVariable("id") Long id){
-        return reviewRepository.findByIdAndAdminReviewStatus(id, AdminReviewStatus.APPROVED);
     }
 
     @PutMapping("/dining-review/{id}/approve")
@@ -56,6 +52,27 @@ public class DiningReviewController {
         }
         DiningReview reviewToApprove = reviewOptional.get();
         reviewToApprove.setAdminReviewStatus(AdminReviewStatus.APPROVED);
+        
+        Optional<Restaurant> restaurantOptional = restaurantRepository.findById(reviewToApprove.getRestaurantId());
+        Restaurant restaurantReview = restaurantOptional.get();
+        
+        Float peanutS;
+        Float eggS;
+        Float diaryS;
+        Float totalS;
+        
+        peanutS = (restaurantReview.getPeanutScore() + reviewToApprove.getPeanutScore()) / 2;
+        eggS = (restaurantReview.getEggScore() + reviewToApprove.getEggScore()) / 2;
+        diaryS = (restaurantReview.getDiaryScore() + reviewToApprove.getDairyScore()) / 2;
+        totalS = (peanutS + eggS + diaryS) / 3;
+        
+        restaurantReview.setPeanutScore(peanutS);
+        restaurantReview.setEggScore(eggS);
+        restaurantReview.setDiaryScore(diaryS);
+        restaurantReview.setScore(totalS);
+        
+        restaurantRepository.save(restaurantReview);
+        		
         return reviewRepository.save(reviewToApprove);
     }
 

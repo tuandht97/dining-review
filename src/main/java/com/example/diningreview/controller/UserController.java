@@ -17,7 +17,16 @@ public class UserController {
 
     @PostMapping("/users")
     public User createNewUser(@RequestBody User newUser) {
-        return userRepository.save(newUser);
+    	 Optional<User> optUser = this.userRepository.findByUserName(newUser.getUserName());
+         if (optUser.isPresent()) {
+             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Username already exists");
+         }
+         if (newUser.getUserName() == null) {
+             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You have not entered username");
+         }
+         else {
+            return this.userRepository.save(newUser);
+         }
     }
 
     @GetMapping("/users")
@@ -38,12 +47,16 @@ public class UserController {
 
     @PutMapping("/users/{userName}")
     public User updateUser(@PathVariable("userName") String userName, @RequestBody User userChanges) {
-        User user = userRepository.findByUserName(userName)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "This use does not exist"));
-
+    	Optional<User> userOptional = userRepository.findByUserName(userName);
+        if(userOptional.isEmpty()){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "This user does not exist");
+        }
+        
+        User user = userOptional.get();
+        
         user.setCity(userChanges.getCity());
         user.setState(userChanges.getState());
-        user.setPostCode(userChanges.getPostCode());
+        user.setZipCode(userChanges.getZipCode());
         user.setPeanutAllergy(userChanges.isPeanutAllergy());
         user.setEggAllergy(userChanges.isEggAllergy());
         user.setDairyAllergy(userChanges.isDairyAllergy());
